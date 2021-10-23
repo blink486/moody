@@ -29,7 +29,7 @@ class _AddQuestionsState extends State<AddQuestions> {
     // Emoji smile = Emoji.fromJson(json)   ('Grinning Face');
     return Scaffold(
       appBar: AppBar(
-        title: Text("3.0 addquestions.dt " /*+ widget.searchstr*/),
+        title: Text("3.0 addquestions .dt " /*+ widget.searchstr*/),
         // actions: <Widget>[HomeNav()],
       ),
       body: SingleChildScrollView(
