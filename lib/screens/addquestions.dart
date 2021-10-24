@@ -4,7 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:moodclicks/screens/addsrvquestions.dart';
 import 'package:moodclicks/screens/scrollcards.dart';
 import 'package:moodclicks/services/createinitsurvey.dart';
-import 'package:moodclicks/services/signup.dart';
+
+import 'addsrvimages.dart';
 
 class AddQuestions extends StatefulWidget {
   final String srvCreator;
@@ -36,35 +37,41 @@ class _AddQuestionsState extends State<AddQuestions> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
+            // Padding(
+            //   padding: const EdgeInsets.all(14.0),
+            //   child: TextButton(
+            //     onPressed: () {
+            //       Navigator.push(
+            //           context,
+            //           MaterialPageRoute(
+            //               // builder: (BuildContext context) => PageViewDemo())); //Go Sample Cards
+            //               builder: (BuildContext context) => SignUp()));
+            //       // print('${smile.name}');
+            //     },
+            //     child: Text(
+            //       emojiHeart +
+            //           "Click To Sign up and Create your first Survey USERID : " +
+            //           widget.srvCreator,
+            //       style: TextStyle(fontSize: 14),
+            //     ),
+            //     // ),
+            //   ),
+            // ),
             Padding(
-              padding: const EdgeInsets.all(14.0),
-              child: TextButton(
-                onPressed: () {
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          // builder: (BuildContext context) => PageViewDemo())); //Go Sample Cards
-                          builder: (BuildContext context) => SignUp()));
-                  // print('${smile.name}');
-                },
-                child: Text(
-                  emojiHeart +
-                      "Click To Sign up and Create your first Survey USERID : " +
-                      widget.srvCreator,
-                  style: TextStyle(fontSize: 14),
-                ),
-                // ),
-              ),
+              padding: const EdgeInsets.all(20.0),
+              child: Text('Account Created User ID:' +
+                  widget.srvCreator +
+                  '  Enter your first Quer Questions'),
             ),
             Padding(
-              padding: const EdgeInsets.all(6.0),
+              padding: const EdgeInsets.all(20.0),
               child: TextFormField(
                 controller: srvName,
                 decoration: InputDecoration(hintText: "Enter Survey Name:"),
               ),
             ),
             Padding(
-              padding: const EdgeInsets.all(6.0),
+              padding: const EdgeInsets.all(20.0),
               child: TextFormField(
                 controller: srvDescription,
                 decoration:
@@ -112,19 +119,44 @@ class _AddQuestionsState extends State<AddQuestions> {
                 //         );
 
                 Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        // builder: (BuildContext context) => PageViewDemo())); //Go Sample Cards
-                        builder: (BuildContext context) => AddSrvQuestions(
-                              description: 'User',
-                              name: 'Another',
-                            )));
+                  context,
+                  MaterialPageRoute(
+                    // builder: (BuildContext context) => PageViewDemo())); //Go Sample Cards
+                    builder: (BuildContext context) => AddSrvImages(
+                      description: 'User',
+                      name: 'Another',
+                    ),
+                  ),
+                );
               },
-              child: Text(
-                  emojiHeart + " Submit New Survey and Enter Survey Questions"),
+              child: Text(emojiHeart +
+                  " Submit New Survey and ADD Quick Survey Emojis "),
             ),
             SizedBox(
               height: 10,
+            ),
+            Padding(
+              padding: const EdgeInsets.all(14.0),
+              child: TextButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (BuildContext context) => AddSrvQuestions(
+                        description: 'User',
+                        name: 'Another',
+                      ),
+                    ),
+                  ); //Go Sample Cards
+                  // builder: (BuildContext context) => SignUp()));
+                  // print('${smile.name}');
+                },
+                child: Text(
+                  emojiHeart + " Add Questions to Long Survey",
+                  style: TextStyle(fontSize: 14),
+                ),
+                // ),
+              ),
             ),
             Padding(
               padding: const EdgeInsets.all(14.0),
@@ -139,7 +171,7 @@ class _AddQuestionsState extends State<AddQuestions> {
                   // print('${smile.name}');
                 },
                 child: Text(
-                  emojiHeart + " View Sample Survey (Static):" + emojiHeart,
+                  emojiHeart + " View Sample Survey (Static):",
                   style: TextStyle(fontSize: 14),
                 ),
                 // ),
