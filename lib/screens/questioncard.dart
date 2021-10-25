@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:moodclicks/screens/crd.dart';
 import 'package:moodclicks/screens/createsurvey.dart';
 
 class Home extends StatefulWidget {

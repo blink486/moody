@@ -14,7 +14,8 @@ class SignUp extends StatefulWidget {
 }
 
 class _SignUpState extends State<SignUp> {
-  final loggedInUser = FirebaseAuth.instance.currentUser!.uid.toString();
+  // final loggedInUser = FirebaseAuth.instance.currentUser!.uid.toString();
+  final loggedInUser = FirebaseAuth.instance.currentUser;
   final _auth = FirebaseAuth.instance;
   TextEditingController email = new TextEditingController();
   TextEditingController password = new TextEditingController();
@@ -67,7 +68,10 @@ class _SignUpState extends State<SignUp> {
                           await _auth.createUserWithEmailAndPassword(
                               email: email.text, password: password.text);
 
-                      if (newUser != null) {
+                      // ignore: unnecessary_null_comparison
+                      // if (newUser != null) {
+
+                      {
                         print(newUser);
                         Navigator.push(
                           context,
@@ -102,7 +106,9 @@ class _SignUpState extends State<SignUp> {
                           await _auth.createUserWithEmailAndPassword(
                               email: email.text, password: password.text);
 
-                      if (newUser != null) {
+                      // ignore: unnecessary_null_comparison
+                      // if (newUser != null) {
+                      {
                         print(newUser);
                         Navigator.push(
                           context,

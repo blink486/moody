@@ -1,14 +1,18 @@
+import 'dart:io';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:image_picker/image_picker.dart';
 
-class AddSrvQuestions extends StatefulWidget {
+class AddSrvImages extends StatefulWidget {
   final String name;
   final String description;
   // final String id;
   // final String userId;
 
-  const AddSrvQuestions({
+  const AddSrvImages({
     Key? key,
     required this.name,
     required this.description,
@@ -17,10 +21,26 @@ class AddSrvQuestions extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  _AddSrvQuestionsState createState() => _AddSrvQuestionsState();
+  _AddSrvImagesState createState() => _AddSrvImagesState();
 }
 
-class _AddSrvQuestionsState extends State<AddSrvQuestions> {
+class _AddSrvImagesState extends State<AddSrvImages> {
+// Implemented image picker using code from : https://www.youtube.com/watch?v=MSv38jO4EJk
+
+  File? image;
+  Future pickImage(ImageSource source) async {
+    try {
+      final image = await ImagePicker().pickImage(source: source);
+      if (image == null) return;
+
+      final imageTemporary = File(image.path);
+      this.image = imageTemporary;
+      setState(() => this.image = imageTemporary);
+    } on PlatformException catch (e) {
+      print('failed to pick images: $e');
+    }
+  }
+
   // late String name;
   final loggedInUser = FirebaseAuth.instance.currentUser!.uid.toString();
   TextEditingController question = new TextEditingController();
@@ -51,8 +71,49 @@ class _AddSrvQuestionsState extends State<AddSrvQuestions> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Text(
+                  "4. addsrvimages.dart",
+                  style: TextStyle(fontSize: 18, color: Colors.pink),
+                ),
+              ),
+              image != null
+                  ? ClipOval(
+                      child: Image.file(
+                        image!,
+                        width: 160,
+                        height: 160,
+                        fit: BoxFit.cover,
+                      ),
+                    )
+                  : FlutterLogo(
+                      size: 160,
+                    ),
               SizedBox(
-                height: 24,
+                height: 6,
+              ),
+              Padding(
+                padding: const EdgeInsets.all(10.0),
+                child: TextButton.icon(
+                  icon: Icon(Icons.camera_alt_outlined),
+                  label: Text("Gallery"),
+                  onPressed: () => pickImage(ImageSource.gallery),
+                ),
+              ),
+              SizedBox(
+                height: 2,
+              ),
+              Padding(
+                padding: const EdgeInsets.all(10.0),
+                child: TextButton.icon(
+                  icon: Icon(Icons.camera_alt_outlined),
+                  label: Text("Camera"),
+                  onPressed: () => pickImage(ImageSource.camera),
+                ),
+              ),
+              SizedBox(
+                height: 44,
               ),
               TextFormField(
                 controller: question,
@@ -74,7 +135,7 @@ class _AddSrvQuestionsState extends State<AddSrvQuestions> {
                   FirebaseFirestore.instance.collection("questions").add(data);
                 },
                 child: Text(
-                    "Submit New Question - ONLY additional one from above to Firebase "),
+                    "Submit New Question - ONLY additional one from above to Firebase OK"),
               ),
               Center(
                 child: Text(srvquestions[_index % srvquestions.length]),
