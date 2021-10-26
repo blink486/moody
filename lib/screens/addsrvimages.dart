@@ -5,6 +5,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:path/path.dart';
 
 class AddSrvImages extends StatefulWidget {
   final String name;
@@ -33,12 +35,41 @@ class _AddSrvImagesState extends State<AddSrvImages> {
       final image = await ImagePicker().pickImage(source: source);
       if (image == null) return;
 
-      final imageTemporary = File(image.path);
-      this.image = imageTemporary;
-      setState(() => this.image = imageTemporary);
+      // final imageTemporary = File(image.path);
+      // this.image = imageTemporary;
+      // setState(() => this.image = imageTemporary);
+      final imagePermanent = await saveImagePermanently(image.path);
+      print('LOCATION IF IMAGES: ' + image.path);
+      this.image = imagePermanent;
+      setState(() => this.image = imagePermanent);
     } on PlatformException catch (e) {
       print('failed to pick images: $e');
     }
+  }
+
+  List<String> imgLocation = [];
+  List<String> imgName = [];
+
+  Future<File> saveImagePermanently(String imagePath) async {
+    final directory = await getApplicationDocumentsDirectory();
+    final name = basename(imagePath);
+    final image = File('${directory.path}/$name');
+    print(directory);
+    imgLocation.add(basename(imagePath));
+    imgName.add(name);
+    print("Imahe List Location: ");
+    print(imgLocation);
+    print("Imahe List Path: ");
+    print(imagePath);
+    return File(imagePath).copy(image.path);
+  }
+
+  void _printImgLocationList() {
+    print(imgLocation);
+  }
+
+  void _printImgNameList() {
+    print(imgName);
   }
 
   // late String name;
@@ -60,13 +91,29 @@ class _AddSrvImagesState extends State<AddSrvImages> {
 
   List yourItemList = [];
 
+  List<File> _imageList = [];
+
+  int index = 0;
+
+  void _addImage(File _newimage) {
+    setState(() {
+      index += 1;
+      _imageList.add(_newimage);
+      print("HA path" + _newimage.path);
+    });
+  }
+
+  void _printImgList() {
+    print(_imageList.toString());
+  }
+
   @override
   Widget build(BuildContext context) {
     // var item = yourItemList.length - 1;
 
     return Scaffold(
+      // resizeToAvoidBottomInset: true,
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(32.0),
         child: Container(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -78,6 +125,114 @@ class _AddSrvImagesState extends State<AddSrvImages> {
                   style: TextStyle(fontSize: 18, color: Colors.pink),
                 ),
               ),
+              // TextButton(
+              //   child: Text("Add Image:  ${_imageList.length}"),
+              //   onPressed: () async {
+              //     var _image =
+              //         await ImagePicker.pickImage(source: ImageSource.gallery);
+              //     // print(_image.path);
+              //     // _addImage(_image);
+              //   },
+              // ),
+              Padding(
+                padding: const EdgeInsets.all(10.0),
+                child: TextButton.icon(
+                    icon: Icon(Icons.ac_unit),
+                    label: Text("Camera "),
+                    onPressed: () async {
+                      var _newimage = await pickImage(ImageSource.gallery);
+                      print("HELLOO " + _newimage.path);
+                      _addImage(_newimage);
+                    }),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(18.0),
+                child: ListView.builder(
+                    shrinkWrap: true,
+                    physics: NeverScrollableScrollPhysics(),
+                    scrollDirection: Axis.vertical,
+                    itemCount: _imageList.length,
+                    itemBuilder: (context, index) {
+                      return InkWell(
+                        onTap: () {
+                          print('Tepped');
+                          return null;
+                        },
+                        child: Card(
+                          child: Container(
+                            child: Padding(
+                              padding: const EdgeInsets.all(28.0),
+                              child: Text(_imageList[index].path),
+                              // child: Text(
+                              //   "_imageList[index].path",
+                              //   style: TextStyle(color: Colors.red),
+                            ),
+                          ),
+                        ),
+                      );
+                    }),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(28.0),
+                child: TextButton.icon(
+                  onPressed: _printImgList,
+                  icon: Icon(Icons.wb_sunny),
+                  label: Text("PRINT IMAGE List"),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(28.0),
+                child: TextButton.icon(
+                  onPressed: _printImgLocationList,
+                  icon: Icon(Icons.wb_sunny),
+                  label: Text("PRINT IMAGE PATH LIST"),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(28.0),
+                child: TextButton.icon(
+                  onPressed: _printImgNameList,
+                  icon: Icon(Icons.wb_sunny),
+                  label: Text("PRINT IMAGE NAME LIST"),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Container(
+                  height: 34,
+                  decoration: BoxDecoration(
+                      color: Colors.lightBlue,
+                      borderRadius: BorderRadius.circular(20)),
+                  child: Center(
+                    child: Text(
+                      widget.name,
+                      style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Container(
+                  height: 64,
+                  decoration: BoxDecoration(
+                      color: Colors.lightGreen,
+                      borderRadius: BorderRadius.circular(20)),
+                  child: Center(
+                    child: Text(
+                      widget.description,
+                      style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 16,
+                          fontWeight: FontWeight.w400),
+                    ),
+                  ),
+                ),
+              ),
+
               image != null
                   ? ClipOval(
                       child: Image.file(
@@ -88,7 +243,7 @@ class _AddSrvImagesState extends State<AddSrvImages> {
                       ),
                     )
                   : FlutterLogo(
-                      size: 160,
+                      size: 60,
                     ),
               SizedBox(
                 height: 6,
@@ -105,16 +260,98 @@ class _AddSrvImagesState extends State<AddSrvImages> {
                 height: 2,
               ),
               Padding(
-                padding: const EdgeInsets.all(10.0),
+                padding: const EdgeInsets.all(30.0),
                 child: TextButton.icon(
                   icon: Icon(Icons.camera_alt_outlined),
                   label: Text("Camera"),
                   onPressed: () => pickImage(ImageSource.camera),
                 ),
               ),
+
+              // DEV NOTES:  Can also choose many images using final List <XFile>? images = await  _picker.pickMultiImage();
+              // Read Documentation for details: https://pub.dev/packages/image_picker/versions/0.8.3+1/example
+              // Take not of changes required if you want to imple,ment in iOS need to update the Runner/Info.plist and add NSCameraUsageDescription...n
+
+              //DEV NOTES: Choose Video Clip - Only in Version 2?
+              // Padding(
+              //   padding: const EdgeInsets.all(10.0),
+              //   child: TextButton.icon(
+              //     icon: Icon(Icons.camera_alt_outlined),
+              //     label: Text("Camera"),
+              //     onPressed: () => pickImage(ImageSource.gallery),
+              //   ),
+              // ),
+
+              // Container(
+              //   height: 50,
+              //   child: SingleChildScrollView(
+              //     child: ListView(
+              //         scrollDirection: Axis.vertical,
+              //         children: <Widget>[
+              //           Text(
+              //             srvq[0],
+              //           ),
+              //           Text(
+              //             srvq[1],
+              //           ),
+              //           Text(
+              //             srvq[2],
+              //           ),
+              //         ]),
+              //   ),
+              // ),
+              Padding(
+                padding: const EdgeInsets.all(18.0),
+                child: ListView(
+                  shrinkWrap: true,
+                  physics: NeverScrollableScrollPhysics(),
+                  scrollDirection: Axis.vertical,
+                  children: <Widget>[
+                    // Container(
+                    //   height: 10,
+                    //   color: Colors.grey,
+                    // ),
+                    // Container(
+                    //   height: 10,
+                    //   color: Colors.blueGrey,
+                    // ),
+                    // Container(
+                    //   height: 10,
+                    //   color: Colors.green,
+                    // ),
+                    // Container(
+                    //   height: 10,
+                    //   color: Colors.grey,
+                    // )
+                    Text(
+                      srvq[0],
+                    ),
+                    Text(
+                      srvq[1],
+                    ),
+                    Text(
+                      srvq[2],
+                    ),
+                  ],
+                ),
+              ),
+
               SizedBox(
                 height: 44,
               ),
+              // ListView(
+              //   scrollDirection: Axis.vertical,
+              //   children: <Widget>[
+              //     Container(
+              //       height: 10,
+              //       color: Colors.grey,
+              //     ),
+              //     Container(
+              //       height: 10,
+              //       color: Colors.blueGrey,
+              //     )
+              //   ],
+              // ),
               TextFormField(
                 controller: question,
                 decoration: InputDecoration(hintText: "Add Question to Survey"),

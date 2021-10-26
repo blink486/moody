@@ -123,8 +123,8 @@ class _AddQuestionsState extends State<AddQuestions> {
                   MaterialPageRoute(
                     // builder: (BuildContext context) => PageViewDemo())); //Go Sample Cards
                     builder: (BuildContext context) => AddSrvImages(
-                      description: 'User',
-                      name: 'Another',
+                      description: srvDescription.text,
+                      name: srvName.text,
                     ),
                   ),
                 );
