@@ -53,6 +53,7 @@ class _AddSrvImagesState extends State<AddSrvImages> {
   List<File> imgLoc = [];
   List<String> imgLocation = [];
   List<String> imgName = [];
+  List<Map> imgMapList = [];
 
   Future<File> saveImagePermanently(String imagePath) async {
     final directory = await getApplicationDocumentsDirectory();
@@ -62,6 +63,12 @@ class _AddSrvImagesState extends State<AddSrvImages> {
     imgLocation.add(basename(imagePath));
     imgName.add(name);
     imgLoc.add(image);
+
+    Map<String, dynamic> data = {
+      "imageLocation": image,
+      "votes": 0,
+    };
+    imgMapList.add(data);
     print("Imahe List Location: ");
     print(imgLocation);
     print("Imahe List Path: ");
@@ -75,6 +82,16 @@ class _AddSrvImagesState extends State<AddSrvImages> {
 
   void _printImgNameList() {
     print(imgName);
+  }
+
+  void _printImgMapList() {
+    print(imgMapList);
+  }
+
+  void _clearImgNameList() {
+    setState(() {
+      imgLoc.clear();
+    });
   }
 
   // late String name;
@@ -119,6 +136,15 @@ class _AddSrvImagesState extends State<AddSrvImages> {
       print(" ONe Vote added");
     });
   }
+
+  void _voteIncrMap(index) {
+    setState(() {
+      imgMapList[index]['votes'] += 1;
+      print(" ONe Vote added to ");
+    });
+  }
+
+// body['personalizations'][0]['dynamic_template_data']['Salary'] = 5000.00;
 
   @override
   Widget build(BuildContext context) {
@@ -286,34 +312,6 @@ class _AddSrvImagesState extends State<AddSrvImages> {
               // Read Documentation for details: https://pub.dev/packages/image_picker/versions/0.8.3+1/example
               // Take not of changes required if you want to imple,ment in iOS need to update the Runner/Info.plist and add NSCameraUsageDescription...n
 
-              //DEV NOTES: Choose Video Clip - Only in Version 2?
-              // Padding(
-              //   padding: const EdgeInsets.all(10.0),
-              //   child: TextButton.icon(
-              //     icon: Icon(Icons.camera_alt_outlined),
-              //     label: Text("Camera"),
-              //     onPressed: () => pickImage(ImageSource.gallery),
-              //   ),
-              // ),
-
-              // Container(
-              //   height: 50,
-              //   child: SingleChildScrollView(
-              //     child: ListView(
-              //         scrollDirection: Axis.vertical,
-              //         children: <Widget>[
-              //           Text(
-              //             srvq[0],
-              //           ),
-              //           Text(
-              //             srvq[1],
-              //           ),
-              //           Text(
-              //             srvq[2],
-              //           ),
-              //         ]),
-              //   ),
-              // ),
               Padding(
                 padding: const EdgeInsets.all(18.0),
                 child: ListView(
@@ -321,22 +319,6 @@ class _AddSrvImagesState extends State<AddSrvImages> {
                   physics: NeverScrollableScrollPhysics(),
                   scrollDirection: Axis.vertical,
                   children: <Widget>[
-                    // Container(
-                    //   height: 10,
-                    //   color: Colors.grey,
-                    // ),
-                    // Container(
-                    //   height: 10,
-                    //   color: Colors.blueGrey,
-                    // ),
-                    // Container(
-                    //   height: 10,
-                    //   color: Colors.green,
-                    // ),
-                    // Container(
-                    //   height: 10,
-                    //   color: Colors.grey,
-                    // )
                     Text(
                       srvq[0],
                     ),
@@ -367,19 +349,7 @@ class _AddSrvImagesState extends State<AddSrvImages> {
               SizedBox(
                 height: 44,
               ),
-              // ListView(
-              //   scrollDirection: Axis.vertical,
-              //   children: <Widget>[
-              //     Container(
-              //       height: 10,
-              //       color: Colors.grey,
-              //     ),
-              //     Container(
-              //       height: 10,
-              //       color: Colors.blueGrey,
-              //     )
-              //   ],
-              // ),
+
               TextFormField(
                 controller: question,
                 decoration: InputDecoration(hintText: "Add Question to Survey"),
@@ -506,30 +476,114 @@ class _AddSrvImagesState extends State<AddSrvImages> {
                 ),
               ),
               ListView.builder(
-                  physics: NeverScrollableScrollPhysics(),
-                  shrinkWrap: true,
-                  itemCount: imgLoc.length,
-                  itemBuilder: (context, index) {
-                    // return Text('Some text');
+                physics: NeverScrollableScrollPhysics(),
+                shrinkWrap: true,
+                itemCount: imgLoc.length,
+                itemBuilder: (context, index) {
+                  // return Text('Some text');
 
-                    return Center(
-                      child: TextButton(
-                        onPressed: () {
-                          print('pic pRESSED');
-                          _voteincr();
-                          print(_votes);
-                        },
-                        child: Container(
-                          alignment: Alignment.bottomLeft,
-                          height: 100,
-                          width: 100,
-                          child: image == null
-                              ? Text('No Image Showing')
-                              : Image.file(imgLoc[index]),
+                  return Center(
+                    child: TextButton(
+                      onPressed: () {
+                        print('pic pRESSED');
+                        _voteincr();
+                        print(_votes);
+                      },
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: Colors.amber,
+                          borderRadius: BorderRadius.all(
+                            Radius.circular(100),
+                          ),
                         ),
+                        alignment: Alignment.bottomLeft,
+                        height: 80,
+                        width: 100,
+                        child: image == null
+                            ? Text('No Image Showing')
+                            : Image.file(imgLoc[index]),
                       ),
-                    );
-                  })
+                    ),
+                  );
+                },
+              ),
+              Padding(
+                padding: const EdgeInsets.all(34.0),
+                child: TextButton(
+                  onPressed: () {
+                    imgLoc.clear();
+                  },
+                  child: Text(
+                    // NEED LOGIC TO REBUILD CONTEXT
+                    " Clear imgLoc: ",
+                    style: TextStyle(fontSize: 18),
+                  ),
+                  // ),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(28.0),
+                child: TextButton.icon(
+                  onPressed: _printImgMapList,
+                  icon: Icon(Icons.wb_sunny),
+                  label: Text("PRINT IMAGE _printImgMapList LIST"),
+                ),
+              ),
+              ListView.builder(
+                physics: NeverScrollableScrollPhysics(),
+                shrinkWrap: true,
+                itemCount: imgMapList.length,
+                itemBuilder: (context, index) {
+                  // return Text('Some text');
+
+                  // var imageLoc = imgMapList[index]['imageLocation'].toString();
+
+                  File file =
+                      //  image!;
+                      File(imgMapList[index]['imageLocation'].toString());
+                  // image.toString() as File;
+                  // final imageLocations = File(imageLoc.image);
+                  // print('idfdfdf' + file.toString());
+
+                  // print("thi is it 2");
+                  // print(file);
+                  // print(image);
+                  // print(imgMapList[index]['imageLocation'] as File);
+
+                  return Center(
+                    child: TextButton(
+                      onPressed: () {
+                        print('pic pRESSED');
+                        _voteIncrMap(index);
+                        // _voteincr();
+                        print(_printImgMapList);
+                        print("thi is it 3");
+                        print(imgMapList[index]['votes']);
+                        print(image);
+                        print("thi is it 4");
+                        print(imgMapList[index]['imageLocation'] as File);
+                      },
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: Colors.amber,
+                          borderRadius: BorderRadius.all(
+                            Radius.circular(100),
+                          ),
+                        ),
+                        alignment: Alignment.bottomLeft,
+                        height: 180,
+                        width: 100,
+                        child: image == null
+                            ? Text('No Image Showing')
+                            : Image.file(
+                                imgMapList[index]['imageLocation'] as File),
+                        // : Image.file(
+                        //     '/data/user/0/com.example.moodclicks/app_flutter/image_picker1557202220805647028.jpg'),
+                      ),
+                    ),
+                  );
+                },
+              ),
             ],
           ),
         ),
