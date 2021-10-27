@@ -5,6 +5,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:moodclicks/screens/tmp.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart';
 
@@ -47,6 +48,9 @@ class _AddSrvImagesState extends State<AddSrvImages> {
     }
   }
 
+  int _votes = 0;
+
+  List<File> imgLoc = [];
   List<String> imgLocation = [];
   List<String> imgName = [];
 
@@ -57,6 +61,7 @@ class _AddSrvImagesState extends State<AddSrvImages> {
     print(directory);
     imgLocation.add(basename(imagePath));
     imgName.add(name);
+    imgLoc.add(image);
     print("Imahe List Location: ");
     print(imgLocation);
     print("Imahe List Path: ");
@@ -107,6 +112,14 @@ class _AddSrvImagesState extends State<AddSrvImages> {
     print(_imageList.toString());
   }
 
+  void _voteincr() {
+    setState(() {
+      _votes += 1;
+
+      print(" ONe Vote added");
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     // var item = yourItemList.length - 1;
@@ -114,6 +127,7 @@ class _AddSrvImagesState extends State<AddSrvImages> {
     return Scaffold(
       // resizeToAvoidBottomInset: true,
       body: SingleChildScrollView(
+        physics: ScrollPhysics(),
         child: Container(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -329,8 +343,22 @@ class _AddSrvImagesState extends State<AddSrvImages> {
                     Text(
                       srvq[1],
                     ),
-                    Text(
-                      srvq[2],
+                    Center(
+                      child: TextButton(
+                        onPressed: () {
+                          print('pic pRESSED');
+                          _voteincr();
+                          print(_votes);
+                        },
+                        child: Container(
+                          alignment: Alignment.bottomLeft,
+                          height: 160,
+                          width: 160,
+                          child: image == null
+                              ? Text('No Image Showing')
+                              : Image.file(imgLoc.first),
+                        ),
+                      ),
                     ),
                   ],
                 ),
@@ -425,7 +453,83 @@ class _AddSrvImagesState extends State<AddSrvImages> {
                   icon: Icon(Icons.wb_sunny),
                   label: Text("REMOVE Latest Item From List"),
                 ),
-              )
+              ),
+
+// DELETE THIS SAMPLE CODE FROM  https://stackoverflow.com/questions/57438902/showing-more-than-one-photo-taken-from-the-camera
+              // MaterialButton(
+              //   child: Text("Add Image:  ${_imageList.length}"),
+              //   onPressed: () async {
+              //     var _image = await pickImage(ImageSource.gallery);
+              //     print(_image.path);
+              //     _addImage(_image);
+              //   },
+              // ),
+              // Expanded(
+              //   child: ListView.builder(
+              //       itemCount: _imageList.length,
+              //       itemBuilder: (context, index) {
+              //         return InkWell(
+              //             onTap: () {
+              //               return null;
+              //             },
+              //             child: Card(
+              //               child: Container(
+              //                 child: Padding(
+              //                   padding: const EdgeInsets.all(8.0),
+              //                   child: Text(_imageList[index].path),
+              //                 ),
+              //               ),
+              //             ));
+              //       }),
+              // ),
+
+              // END DELETE
+
+              Padding(
+                padding: const EdgeInsets.all(34.0),
+                child: TextButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (BuildContext context) => ListImages(),
+                      ),
+                    ); //Go Sample Cards
+                    // builder: (BuildContext context) => SignUp()));
+                    // print('${smile.name}');
+                  },
+                  child: Text(
+                    " View Sample Survey Display:",
+                    style: TextStyle(fontSize: 18),
+                  ),
+                  // ),
+                ),
+              ),
+              ListView.builder(
+                  physics: NeverScrollableScrollPhysics(),
+                  shrinkWrap: true,
+                  itemCount: imgLoc.length,
+                  itemBuilder: (context, index) {
+                    // return Text('Some text');
+
+                    return Center(
+                      child: TextButton(
+                        onPressed: () {
+                          print('pic pRESSED');
+                          _voteincr();
+                          print(_votes);
+                        },
+                        child: Container(
+                          alignment: Alignment.bottomLeft,
+                          height: 100,
+                          width: 100,
+                          child: image == null
+                              ? Text('No Image Showing')
+                              : Image.file(imgLoc[index]),
+                        ),
+                      ),
+                    );
+                  })
             ],
           ),
         ),
