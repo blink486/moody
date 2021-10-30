@@ -2,9 +2,11 @@ import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:moodclicks/screens/addimagescloud.dart';
 import 'package:moodclicks/screens/tmp.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart';
@@ -29,8 +31,47 @@ class AddSrvImages extends StatefulWidget {
 
 class _AddSrvImagesState extends State<AddSrvImages> {
 // Implemented image picker using code from : https://www.youtube.com/watch?v=MSv38jO4EJk
-
+  var imageUrlFire;
   File? image;
+
+  uploadImage() async {
+    final _storage = FirebaseStorage.instance;
+    // final _picker = ImagePicker();
+    // PickedFile image;
+    // File image;
+// TODO: Check Permissions
+
+// Select IMAGE
+
+    // image =
+    //     (await _picker.pickImage(source: ImageSource.gallery)) as PickedFile;
+    final imageCloud =
+        await ImagePicker().pickImage(source: ImageSource.gallery);
+    print(PickedFile);
+    print(imageCloud!.path);
+    var file = File(imageCloud.path);
+    if (imageCloud != null) {
+      final name = basename(imageCloud.path);
+      var snapshot =
+          await _storage.ref().child('folderName/$name').putFile(file);
+      print(snapshot);
+      var downloadUrl = await snapshot.ref.getDownloadURL();
+      print('DOWNLOAD url');
+      print(downloadUrl);
+      Map<String, dynamic> data = {
+        "imageLocation": image,
+        "votes": 0,
+      };
+      imgMapList.add(data);
+
+      setState(() {
+        imageUrlFire = downloadUrl;
+      });
+    } else {
+      print('No path found');
+    }
+  }
+
   Future pickImage(ImageSource source) async {
     try {
       final image = await ImagePicker().pickImage(source: source);
@@ -50,12 +91,15 @@ class _AddSrvImagesState extends State<AddSrvImages> {
 
   int _votes = 0;
 
+  late String imageUrl;
+
   List<File> imgLoc = [];
   List<String> imgLocation = [];
   List<String> imgName = [];
   List<Map> imgMapList = [];
 
   Future<File> saveImagePermanently(String imagePath) async {
+    final _storage = FirebaseStorage.instance;
     final directory = await getApplicationDocumentsDirectory();
     final name = basename(imagePath);
     final image = File('${directory.path}/$name');
@@ -73,8 +117,55 @@ class _AddSrvImagesState extends State<AddSrvImages> {
     print(imgLocation);
     print("Imahe List Path: ");
     print(imagePath);
+    // return File(imagePath).copy(image.path);
+
+// EXTRA TO UPLOAD TO FIREBASE STORAGE:
+
+    // Future uploadImageToFirebase(BuildContext context) async {
+    // String fileName = basename(_imageFile.path);
+    // StorageReference firebaseStorageRef =
+    //     FirebaseStorage.instance.ref().child('uploads/$image');
+    // StorageUploadTask uploadTask = firebaseStorageRef.putFile(image);
+    // StorageTaskSnapshot taskSnapshot = await uploadTask.onComplete;
+    // taskSnapshot.ref.getDownloadURL().then(
+    //       (value) => print("Done: $value"),
+    //     );
+
+    // try {
+    //   var firebase_storage;
+    //   await firebase_storage.FirebaseStorage.instance
+    //       .ref('uploads/file-to-upload.png')
+    //       .putFile(image);
+    // } on firebase_core.FirebaseException catch (e) {
+    //   // e.g, e.code == 'canceled'
+    // }
+
+    try {
+      var snapshot = await _storage.ref().child('images').putFile(image);
+
+      var downloadurl = snapshot.ref.getDownloadURL();
+      setState(() {
+        imageUrl = downloadurl as String;
+      });
+    } catch (e) {
+      print(e);
+      print("NO FILE UPload");
+    }
     return File(imagePath).copy(image.path);
+
+    // }
   }
+
+  // Future uploadImageToFirebase(BuildContext context) async {
+  //   String fileName = basename(_imageFile.path);
+  //   StorageReference firebaseStorageRef =
+  //       FirebaseStorage.instance.ref().child('uploads/$fileName');
+  //   StorageUploadTask uploadTask = firebaseStorageRef.putFile(_imageFile);
+  //   StorageTaskSnapshot taskSnapshot = await uploadTask.onComplete;
+  //   taskSnapshot.ref.getDownloadURL().then(
+  //         (value) => print("Done: $value"),
+  //       );
+  // }
 
   void _printImgLocationList() {
     print(imgLocation);
@@ -425,35 +516,41 @@ class _AddSrvImagesState extends State<AddSrvImages> {
                 ),
               ),
 
-// DELETE THIS SAMPLE CODE FROM  https://stackoverflow.com/questions/57438902/showing-more-than-one-photo-taken-from-the-camera
-              // MaterialButton(
-              //   child: Text("Add Image:  ${_imageList.length}"),
-              //   onPressed: () async {
-              //     var _image = await pickImage(ImageSource.gallery);
-              //     print(_image.path);
-              //     _addImage(_image);
-              //   },
-              // ),
-              // Expanded(
-              //   child: ListView.builder(
-              //       itemCount: _imageList.length,
-              //       itemBuilder: (context, index) {
-              //         return InkWell(
-              //             onTap: () {
-              //               return null;
-              //             },
-              //             child: Card(
-              //               child: Container(
-              //                 child: Padding(
-              //                   padding: const EdgeInsets.all(8.0),
-              //                   child: Text(_imageList[index].path),
-              //                 ),
-              //               ),
-              //             ));
-              //       }),
-              // ),
-
-              // END DELETE
+              // NEW CARD LIST VIEW
+              ListView.builder(
+                  physics: NeverScrollableScrollPhysics(),
+                  shrinkWrap: true,
+                  itemCount: imgMapList.length,
+                  itemBuilder: (context, index) {
+                    return InkWell(
+                      onTap: () {
+                        print('pic pRESSED');
+                        _voteIncrMap(index);
+                        // _voteincr();
+                        print(_printImgMapList);
+                        // return null;
+                      },
+                      child: Card(
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: Colors.amber,
+                            borderRadius: BorderRadius.all(
+                              Radius.circular(100),
+                            ),
+                          ),
+                          alignment: Alignment.bottomLeft,
+                          height: 90,
+                          width: 80,
+                          child: image == null
+                              ? Text('No Image Showing in CARD')
+                              : Image.file(
+                                  imgMapList[index]['imageLocation'] as File),
+                          // : Image.file(
+                          //     '/data/user/0/com.example.moodclicks/app_flutter/image_picker1557202220805647028.jpg'),
+                        ),
+                      ),
+                    );
+                  }),
 
               Padding(
                 padding: const EdgeInsets.all(34.0),
@@ -534,21 +631,9 @@ class _AddSrvImagesState extends State<AddSrvImages> {
                 shrinkWrap: true,
                 itemCount: imgMapList.length,
                 itemBuilder: (context, index) {
-                  // return Text('Some text');
-
                   // var imageLoc = imgMapList[index]['imageLocation'].toString();
-
                   File file =
-                      //  image!;
                       File(imgMapList[index]['imageLocation'].toString());
-                  // image.toString() as File;
-                  // final imageLocations = File(imageLoc.image);
-                  // print('idfdfdf' + file.toString());
-
-                  // print("thi is it 2");
-                  // print(file);
-                  // print(image);
-                  // print(imgMapList[index]['imageLocation'] as File);
 
                   return Center(
                     child: TextButton(
@@ -583,6 +668,40 @@ class _AddSrvImagesState extends State<AddSrvImages> {
                     ),
                   );
                 },
+              ),
+
+              TextButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (BuildContext context) => UploadImages(),
+                    ),
+                  ); //Go Sample Cards
+                  // builder: (BuildContext context) => SignUp()));
+                  // print('${smile.name}');
+                },
+                child: Text(
+                  " Images: UPLOAD to Cloud",
+                  style: TextStyle(fontSize: 14),
+                ),
+                // ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(10.0),
+                child: TextButton.icon(
+                  icon: Icon(Icons.camera_alt_outlined),
+                  label: Text("Upload to Firebase from Gallery"),
+                  onPressed: () => uploadImage(), //(ImageSource.gallery),
+                ),
+              ),
+              Container(
+                height: 100,
+                width: 80,
+                child: Image.network(
+                  "https://firebasestorage.googleapis.com/v0/b/moodclick-3174b.appspot.com/o/folderName%2Fimage_picker8468315551375320268.jpg?alt=media&token=f438819a-92e2-4e8f-b8b7-aa943d6fbbc9",
+                  fit: BoxFit.cover,
+                ),
               ),
             ],
           ),
