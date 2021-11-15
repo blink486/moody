@@ -9,6 +9,7 @@ import 'package:moodclicks/screens/questioncard.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
+
   // runApp(MyApp()); // Emojo Picker
   runApp(MaterialApp(home: Home()));
 }

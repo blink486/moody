@@ -1,4 +1,3 @@
-// import 'dart:html';
 import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -7,24 +6,18 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:moodclicks/model/survey.dart';
-import 'package:moodclicks/model/surveyo.dart';
 import 'package:moodclicks/screens/addimagescloud.dart';
 import 'package:moodclicks/screens/tmp.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart';
-import 'dart:convert';
 
-class AddSrvImages extends StatefulWidget {
+class AddImages extends StatefulWidget {
   final String name;
   final String description;
-  // TODO: ADD Document Name from initial Survey Question in Previous Class.
-  // TODO: Add additional Details from SignUp e.g. Phone No. , verify e-mail,
-
   // final String id;
   // final String userId;
 
-  const AddSrvImages({
+  const AddImages({
     Key? key,
     required this.name,
     required this.description,
@@ -33,54 +26,13 @@ class AddSrvImages extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  _AddSrvImagesState createState() => _AddSrvImagesState();
+  _AddImagesState createState() => _AddImagesState();
 }
 
-class _AddSrvImagesState extends State<AddSrvImages> {
+class _AddImagesState extends State<AddImages> {
 // Implemented image picker using code from : https://www.youtube.com/watch?v=MSv38jO4EJk
-  var imageUrlFire;
+
   File? image;
-
-  uploadImage() async {
-    final _storage = FirebaseStorage.instance;
-    // final _picker = ImagePicker();
-    // PickedFile image;
-    // File image;
-// TODO: Check Permissions
-
-// Select IMAGE
-
-    // image =
-    //     (await _picker.pickImage(source: ImageSource.gallery)) as PickedFile;
-    final imageCloud =
-        await ImagePicker().pickImage(source: ImageSource.gallery);
-    print(PickedFile);
-    print(imageCloud!.path);
-    var file = File(imageCloud.path); //Fullpath
-    var fileName = File(basename(imageCloud.path));
-    if (imageCloud != null) {
-      final name = basename(imageCloud.path);
-      var snapshot =
-          await _storage.ref().child('folderName/$name').putFile(file);
-      print(snapshot);
-      var downloadUrl = await snapshot.ref.getDownloadURL();
-      print('DOWNLOAD url');
-      print(downloadUrl);
-      Map<String, dynamic> data = {
-        "imageLocation": file, //In Phone
-        "imageName": fileName, //Name of image
-        "downloadUrl": downloadUrl, //Location in CloudFireStorage
-        "votes": 0,
-      };
-      imgMapList.add(data);
-
-      setState(() {
-        imageUrlFire = downloadUrl;
-      });
-    } else {
-      print('No path found');
-    }
-  }
 
   Future pickImage(ImageSource source) async {
     try {
@@ -98,172 +50,6 @@ class _AddSrvImagesState extends State<AddSrvImages> {
       print('failed to pick images: $e');
     }
   }
-
-// Future uploadListToFire() async {
-
-//     final _storage = FirebaseStorage.instance;
-
-//  List<Map> imgMapList = [];
-
-// }
-
-  Future uploadListToFire() async {
-    // FirebaseFirestore.instance.collection("questions").doc().update(
-    final _fireStore = FirebaseFirestore.instance;
-    List surveyItem = [];
-
-    print(widget.name);
-
-    // for (int j = 0; j < imgMapList.length; j++) print(j);
-    for (int i = 0; i < imgMapList.length; i++)
-      surveyItem.add({
-        "votes": imgMapList.toList()[i]['votes'],
-        "downloadUrl": imgMapList.toList()[i]['downloadUrl'].toString(),
-      });
-
-    // var snapshot =
-    await _fireStore.collection('questions').doc('cV1Ht0R8VifDs89kGbVZ').set({
-      'f01surveyname': widget.name,
-      "f02surveydescription": widget.description,
-      "items": FieldValue.arrayUnion(surveyItem),
-      // "f0xdloadUerl": imgMapList[i]['downloadUrl'],
-    });
-  }
-
-// List<Map> imgfromcloud = [];
-
-// Future getdata() async{
-//   await FirebaseFirestore.instance.collection("questions").doc('cV1Ht0R8VifDs89kGbVZ').get().then((value){
-// setState(() {
-//       // first add the data to the Offset object
-//       List.from(value.data["items"]).forEach((element){
-//           Offset data = new Offset(element);
-
-//           //then add the data to the List<Offset>, now we have a type Offset
-//           imgfromcloud.add(data);
-//       });
-
-//       });
-//    });
-//   }
-
-//   late Future<dynamic> friendsList;
-
-//   Future getclouddata() async {
-// // final value =
-//     FirebaseFirestore.instance
-//         .collection("questions")
-//         .doc('cV1Ht0R8VifDs89kGbVZ')
-//         .get()
-//         .then((value) {
-//       friendsList = value.data()!["items"];
-//       print(friendsList);
-//     });
-//   }
-
-//   void getFriendsList() async {
-//     List<dynamic> friendls;
-
-//     final value = await FirebaseFirestore.instance
-//         .collection("questions")
-//         .doc('cV1Ht0R8VifDs89kGbVZ')
-//         .get();
-//     //  .then((value) {
-//     //  return value.data()!["friends"];
-
-//  forEac friendls.add(value["friend"])
-  //  value.data()["friends"];
-
-  // return
-  // value.data()!["friends"];
-  // })
-  // ;
-  // friendsList = value.data()!["items"]["votes"].toString() as Future;
-  // print(friendsList);
-
-  // List cloudItems = [];
-
-  // for (int j = 0; j < imgMapList.length; j++) print(j);
-  // for (int i = 0; i < imgMapList.length; i++)
-//       cloudItems.add({
-//         "votes": value.data.()[i]['votes'],
-//         "downloadUrl": imgMapList.toList()[i]['downloadUrl'].toString(),
-//       });
-
-//     print(value.data());
-//     String data = value[];
-
-// String  dload = jsonDecode(value.data());
-
-// var myData = jsonDecode(value.data())['f01surveyname'][0];
-// print(myData);
-
-// List<imgMapList> chartData = [];
-
-// Future loadSalesData() async {
-//   String jsonString = await getJsonFromFirebaseRestAPI();
-//   final jsonResponse = json.decode(jsonString);
-//   setState(() {
-//     for (Map<String, dynamic> i in jsonResponse)
-//       chartData.add(SalesData.fromJson(i));
-//   });
-// }
-
-// factory LocationRecordings.fromJson(Map<String, dynamic> json) {
-
-//  List<> recList = [];
-
-//  List<dynamic>.from(json['recordings']).forEach((content) {
-//       Recording recording = Recording.fromJson(jsonDecode(jsonEncode(content)));
-//       recList.add(recording);
-//    });
-//  return new LocationRecordings(recordings: recList, state: json['state']);
-// }
-  // }
-
-// TODO: Make survey Publi/Private?
-// TODO: Create and save groups in profile e.g. send to group - List Group?
-// TODO: How to access Contacts in phone and groups in WhatsApp?
-// TODO: Create Launch Page and show popular public votes on TOP Card.
-//
-  // Future<void> uploadListToFire() async {
-  //   // FirebaseFirestore.instance.collection("questions").doc().update(
-  //   print(widget.name);
-  //   print(srvquestions);
-  //   for (int i = 0; i < srvquestions.length; i++)
-  //     yourItemList.add({"f03question": srvquestions.toList()[i]});
-
-  //   await FirebaseFirestore.instance
-  //       .collection('questions')
-  //       .doc('pTTR5oIfOSjNf0AMy0UH')
-  //       .update({
-  //     // 'f01surveyname': widget.name,
-  //     // "f02surveydescription": widget.description,
-  //     "f03question": FieldValue.arrayUnion(yourItemList),
-  //   });
-  // }
-
-  // void uploadListToFireO() {
-  //   // FirebaseFirestore.instance.collection("questions").doc().update(
-  //   print(widget.name);
-  //   print('Hello');
-  //   print(srvquestions);
-  //   for (int i = 0; i < srvquestions.length; i++)
-  //     yourItemList.add({"f08dloadUrl": srvquestions.toList()[i]});
-  //   // for (int i = 0; i < imgMapList.length; i++)
-  //   FirebaseFirestore.instance
-  //       .collection('questions')
-  //       .doc('pTTR5oIfOSjNf0AMy0UH')
-  //       .update({
-  //     'f01surveyname': widget.name,
-  //     "f02surveydescription": widget.description,
-  //     // "f05dloadUrl": FieldValue.arrayUnion(yourItemList),
-  //     // "f05dloadUrl": imageUrlFire.toString(),
-  //     // 'dataAdd': imgMapList[i]["downloadUrl"]
-  //     // "nested": FieldValue.arrayUnion(yourItemList),
-  //     "f08dloadUrl": FieldValue.arrayUnion(yourItemList),
-  //   });
-  // }
 
   int _votes = 0;
 
@@ -315,7 +101,6 @@ class _AddSrvImagesState extends State<AddSrvImages> {
     // } on firebase_core.FirebaseException catch (e) {
     //   // e.g, e.code == 'canceled'
     // }
-
     try {
       var snapshot = await _storage.ref().child('images').putFile(image);
 
@@ -417,8 +202,6 @@ class _AddSrvImagesState extends State<AddSrvImages> {
   Widget build(BuildContext context) {
     // var item = yourItemList.length - 1;
 
-    FutureBuilder<Exercise> exercise;
-
     return Scaffold(
       // resizeToAvoidBottomInset: true,
       body: SingleChildScrollView(
@@ -430,7 +213,7 @@ class _AddSrvImagesState extends State<AddSrvImages> {
               Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: Text(
-                  "4. addsrvimages.dart",
+                  "4. AddImages.dart",
                   style: TextStyle(fontSize: 18, color: Colors.pink),
                 ),
               ),
@@ -694,41 +477,35 @@ class _AddSrvImagesState extends State<AddSrvImages> {
                 ),
               ),
 
-              // NEW CARD LIST VIEW
-              ListView.builder(
-                  physics: NeverScrollableScrollPhysics(),
-                  shrinkWrap: true,
-                  itemCount: imgMapList.length,
-                  itemBuilder: (context, index) {
-                    return InkWell(
-                      onTap: () {
-                        print('pic pRESSED');
-                        _voteIncrMap(index);
-                        // _voteincr();
-                        print(_printImgMapList);
-                        // return null;
-                      },
-                      child: Card(
-                        child: Container(
-                          decoration: BoxDecoration(
-                            color: Colors.amber,
-                            borderRadius: BorderRadius.all(
-                              Radius.circular(100),
-                            ),
-                          ),
-                          alignment: Alignment.bottomLeft,
-                          height: 90,
-                          width: 80,
-                          child: image == null
-                              ? Text('No Image Showing in CARD')
-                              : Image.file(
-                                  imgMapList[index]['imageLocation'] as File),
-                          // : Image.file(
-                          //     '/data/user/0/com.example.moodclicks/app_flutter/image_picker1557202220805647028.jpg'),
-                        ),
-                      ),
-                    );
-                  }),
+// DELETE THIS SAMPLE CODE FROM  https://stackoverflow.com/questions/57438902/showing-more-than-one-photo-taken-from-the-camera
+              // MaterialButton(
+              //   child: Text("Add Image:  ${_imageList.length}"),
+              //   onPressed: () async {
+              //     var _image = await pickImage(ImageSource.gallery);
+              //     print(_image.path);
+              //     _addImage(_image);
+              //   },
+              // ),
+              // Expanded(
+              //   child: ListView.builder(
+              //       itemCount: _imageList.length,
+              //       itemBuilder: (context, index) {
+              //         return InkWell(
+              //             onTap: () {
+              //               return null;
+              //             },
+              //             child: Card(
+              //               child: Container(
+              //                 child: Padding(
+              //                   padding: const EdgeInsets.all(8.0),
+              //                   child: Text(_imageList[index].path),
+              //                 ),
+              //               ),
+              //             ));
+              //       }),
+              // ),
+
+              // END DELETE
 
               Padding(
                 padding: const EdgeInsets.all(34.0),
@@ -809,9 +586,21 @@ class _AddSrvImagesState extends State<AddSrvImages> {
                 shrinkWrap: true,
                 itemCount: imgMapList.length,
                 itemBuilder: (context, index) {
+                  // return Text('Some text');
+
                   // var imageLoc = imgMapList[index]['imageLocation'].toString();
+
                   File file =
+                      //  image!;
                       File(imgMapList[index]['imageLocation'].toString());
+                  // image.toString() as File;
+                  // final imageLocations = File(imageLoc.image);
+                  // print('idfdfdf' + file.toString());
+
+                  // print("thi is it 2");
+                  // print(file);
+                  // print(image);
+                  // print(imgMapList[index]['imageLocation'] as File);
 
                   return Center(
                     child: TextButton(
@@ -848,7 +637,7 @@ class _AddSrvImagesState extends State<AddSrvImages> {
                 },
               ),
 
-              ElevatedButton(
+              TextButton(
                 onPressed: () {
                   Navigator.push(
                     context,
@@ -865,205 +654,6 @@ class _AddSrvImagesState extends State<AddSrvImages> {
                 ),
                 // ),
               ),
-              Padding(
-                padding: const EdgeInsets.all(10.0),
-                child: ElevatedButton.icon(
-                  icon: Icon(Icons.camera_alt_outlined),
-                  label: Text("Upload to Firebase from Gallery"),
-                  onPressed: () => uploadImage(), //(ImageSource.gallery),
-                ),
-              ),
-              Container(
-                height: 100,
-                width: 80,
-                child: Image.network(
-                  // "https://firebasestorage.googleapis.com/v0/b/moodclick-3174b.appspot.com/o/folderName%2Fimage_picker8468315551375320268.jpg?alt=media&token=f438819a-92e2-4e8f-b8b7-aa943d6fbbc9",
-                  "https://firebasestorage.googleapis.com/v0/b/moodclick-3174b.appspot.com/o/folderName%2Fimage_picker2699089795374030666.jpg?alt=media&token=e0805266-bb82-41f6-a79d-411cf9ebe38d",
-                  fit: BoxFit.cover,
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(18.0),
-                child: Container(
-                  height: 80,
-                  child: Text('List from Cloud'),
-                ),
-              ),
-              ListView.builder(
-                physics: NeverScrollableScrollPhysics(),
-                shrinkWrap: true,
-                itemCount: imgMapList.length,
-                itemBuilder: (context, index) {
-                  // var imageLoc = imgMapList[index]['imageLocation'].toString();
-                  // File file =
-                  //     File(imgMapList[index]['imageLocation'].toString());
-
-                  return Center(
-                    child: TextButton(
-                      onPressed: () {
-                        print('pic pRESSED');
-                        _voteIncrMap(index);
-                        // _voteincr();
-                        print(_printImgMapList);
-                        print("Votes");
-                        print(imgMapList[index]['votes']);
-                        print(image);
-                        print("List of Docs");
-                        print(imgMapList[index]['imageLocation'] as File);
-                      },
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: Colors.amber,
-                          borderRadius: BorderRadius.all(
-                            Radius.circular(100),
-                          ),
-                        ),
-                        alignment: Alignment.bottomLeft,
-                        height: 180,
-                        width: 100,
-                        child: imageUrlFire == null
-                            ? Text('No Image Showing')
-                            // : Image.network(imgMapList[index]['downloadUrl']),
-                            : Image.network(imgMapList[index]['downloadUrl']),
-                        // : Image.file(
-                        //     '/data/user/0/com.example.moodclicks/app_flutter/image_picker1557202220805647028.jpg'),
-                      ),
-                    ),
-                  );
-                },
-              ),
-              SizedBox(
-                height: 50,
-              ),
-              Padding(
-                padding: const EdgeInsets.all(10.0),
-                child: TextButton.icon(
-                  icon: Icon(Icons.camera_alt_outlined),
-                  label: Text("Upload imageList to Firebase"),
-                  onPressed: () => uploadListToFire(), //(ImageSource.gallery),
-                ),
-              ),
-              SizedBox(
-                height: 50,
-              ),
-              Padding(
-                padding: const EdgeInsets.all(10.0),
-                child: TextButton.icon(
-                  icon: Icon(Icons.camera_alt_outlined),
-                  label: Text("Upload SaveNestedData  to Firebase"),
-                  onPressed: () => SaveNestedData(), //(ImageSource.gallery),
-                ),
-              ),
-              SizedBox(
-                height: 50,
-              ),
-              Padding(
-                padding: const EdgeInsets.all(10.0),
-                child: TextButton.icon(
-                  icon: Icon(Icons.camera_alt_outlined),
-                  label: Text("Upload AddObjectToArray  to Firebase"),
-                  onPressed: () => AddObjectToArray(), //(ImageSource.gallery),
-                ),
-              ),
-
-              Padding(
-                padding: const EdgeInsets.all(10.0),
-                child: TextButton.icon(
-                    icon: Icon(Icons.camera_alt_outlined),
-                    label: Text("Download ReadNestedData()  from Firebase"),
-                    onPressed: () {
-                      ReadNestedData();
-                      // exercise = jsonDecode();
-                      // Exercise tutorial = Exercise.fromMap()   .fromJson(jsonDecode(nestedObjText));
-                    } //(ImageSource.gallery),
-                    ),
-              ),
-              TextButton(
-                onPressed: () {
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (BuildContext context) =>
-                              QList())); //Go Sample Cards
-                  // builder: (BuildContext context) => SignUp()));
-                  // print('${smile.name}');
-                },
-                child: Text(
-                  " View Sample Survey (Static):",
-                  style: TextStyle(fontSize: 14),
-                ),
-                // ),
-              ),
-              // Padding(
-              //   padding: const EdgeInsets.all(10.0),
-              //   child: TextButton.icon(
-              //     icon: Icon(Icons.assignment_returned),
-              //     label: Text("GET imageList FROM Firebase"),
-              //     onPressed: () => getFriendsList(), //(ImageSource.gallery),
-              //   ),
-              // ),
-              //       StreamBuilder(
-              // stream: FirebaseFirestore.instance.collection("questions").snapshots(),
-              // builder: (context, snapshot) {
-              //   if (!snapshot.hasData) {
-              //     print("No DAta in file");
-              //     // return null);
-              //   }
-              //   return ListView.builder(
-              //     itemCount: snapshot.data.['']document.length,
-              //     itemBuilder: (BuildContext context, int index) {
-              //       Map<dynamic, dynamic> map = snapshot.data.documents[index];
-              //       return ListTile(
-              //         title: Text(map.values.toList()[index]["coinlink"]),
-              //       );
-              //     },
-              //   );
-              // }),
-
-              // SingleChildScrollView(
-              //   physics: ScrollPhysics(),
-              //   child: Expanded(
-              //     child: StreamBuilder(
-              //       stream: FirebaseFirestore.instance
-              //           .collection('questions')
-              //           // .where('items', arrayContains: UserInfoData.userID)
-              //           // .where(document, isEqualTo: 'cV1Ht0R8VifDs89kGbVZ')
-              //           .snapshots(),
-              //       builder:
-              //           (context, AsyncSnapshot<QuerySnapshot> streamSnapshot) {
-              //         switch (streamSnapshot.connectionState) {
-              //           case ConnectionState.waiting:
-              //             return Center(
-              //               child: CircularProgressIndicator(),
-              //             );
-
-              //           default:
-              //             if (streamSnapshot.hasError) {
-              //               print(streamSnapshot.hasError.toString());
-              //             } else {
-              //               final questions = streamSnapshot.data!.docs;
-              //               if (questions.isEmpty) {
-              //                 return Text('ff');
-              //               } else
-              //                 return ListView.builder(
-              //                   itemCount: questions.length,
-              //                   itemBuilder: (context, i) => ListTile(
-              //                     leading: CircleAvatar(
-              //                         // backgroundImage: NetworkImage(
-              //                         //     questions[i]['items']['downloadUrl']),
-              //                         ),
-              //                     title: Text(
-              //                         questions[i]['items']['downloadUrl']),
-              //                     subtitle: Text("HELLO"),
-              //                   ),
-              //                 );
-              //             }
-              //         }
-              //         return Text('ok');
-              //       },
-              //     ),
-              //   ),
-              // ),
             ],
           ),
         ),
@@ -1137,51 +727,4 @@ class _AddSrvImagesState extends State<AddSrvImages> {
       srvquestions.add(question.text);
     });
   }
-}
-
-void SaveNestedData() {
-  Exercise exercise = Exercise("Champins league Final winner?", "Who Wins?");
-  FirebaseFirestore.instance
-      .collection("questions")
-      .doc("4DNTipoOB6GqnGP31dyc")
-      .set(exercise.toMap());
-}
-
-void AddObjectToArray() {
-  Set set = Set("https://www.google.com/", 15);
-  FirebaseFirestore.instance
-      .collection("questions")
-      .doc("4DNTipoOB6GqnGP31dyc")
-      .update({
-    "sets": FieldValue.arrayUnion([set.toMap()])
-  });
-}
-
-//  List<String> imgName = [];
-List<Set> log = [];
-
-// void ReadNestedData() {
-//     Exercise exercise;
-//     FirebaseFirestore.instance.collection("questions").doc("4DNTipoOB6GqnGP31dyc").get().then((docSnapshot) =>
-//     {
-//       exercise = Exercise.fromMap(Snapshot.data),
-//       exercise.sets.forEach((set) {
-//         Set setInst = set as Set;
-//         log("Sets :" + setInst.downloadUrl.toString());
-//       })
-//     });
-//   }
-
-void ReadNestedData() {
-  // Exercise ex;
-  FirebaseFirestore.instance
-      .collection("questions")
-      // .doc("4DNTipoOB6GqnGP31dyc")
-      .doc("cV1Ht0R8VifDs89kGbVZ")
-      .get()
-      .then((docSnapshot) => {
-            print(
-              docSnapshot.data(),
-            ),
-          });
 }
